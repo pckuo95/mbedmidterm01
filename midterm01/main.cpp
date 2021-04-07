@@ -26,10 +26,11 @@ int index_sample = 0;
 int freq = 1;
 // Eventquene
 EventQueue queue(32 * EVENTS_EVENT_SIZE);
+EventQueue queue2(32 * EVENTS_EVENT_SIZE);
 
 //thread
-Thread genWave;
-Thread colWave;
+Thread genWave(osPriorityNormal);
+Thread colWave(osPriorityHigh);
 
 int freqState(int state, int buttonDown, int buttonUp);
 void generateWave();
@@ -49,7 +50,7 @@ int main()
 
     // thread
     genWave.start(callback(&queue, &EventQueue::dispatch_forever));
-    colWave.start(callback(&queue, &EventQueue::dispatch_forever));
+    colWave.start(callback(&queue2, &EventQueue::dispatch_forever));
 
     // initial display
     lcd.locate(0,0);
@@ -57,12 +58,7 @@ int main()
     lcd.locate(0,1);
     lcd.printf("Select slew rate\n");
 
-    // low priority thread for calling printf()
-
-  //  Thread generateWaveThread(osPriorityLow);
-
-  //  generateWaveThread.start(callback(&generateWaveQueue, &EventQueue::dispatch_forever));
-
+  
     while(true) {
         if (buttonDown == 1 || buttonUp == 1 || buttonSel == 1) {
             if (buttonDown == 1) {
@@ -134,7 +130,7 @@ int main()
         if (enable) {
             //generateWaveQueue.call(&genWave);
             //
-            queue.call_every(5ms, collectWave);
+            queue2.call_every(5ms, collectWave);
             //queue.call(generateWave);
             generateWave();
         } else {
@@ -171,7 +167,7 @@ void collectWave()
     
 }
 
-// As studentID = 107012045, S = 0
+
 // generate wave via DAC and collect wave via ADC
 void generateWave()
 {
