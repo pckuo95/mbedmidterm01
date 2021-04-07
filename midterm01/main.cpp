@@ -25,12 +25,15 @@ int cnt_sample = 0;
 int index_sample = 0;
 int freq = 1;
 // Eventquene
-//EventQueue generateWaveQueue
+EventQueue queue(32 * EVENTS_EVENT_SIZE);
 
-
+//thread
+Thread genWave;
+Thread colWave;
 
 int freqState(int state, int buttonDown, int buttonUp);
-void generateWave(int freq);
+void generateWave();
+void collectWave();
 void outputSample();
 
 int main()
@@ -43,6 +46,10 @@ int main()
     int buttonS = 0;
     int pressCnt = 0;
     int print_EN = 0;
+
+    // thread
+    genWave.start(callback(&queue, &EventQueue::dispatch_forever));
+    colWave.start(callback(&queue, &EventQueue::dispatch_forever));
 
     // initial display
     lcd.locate(0,0);
@@ -126,7 +133,10 @@ int main()
    
         if (enable) {
             //generateWaveQueue.call(&genWave);
-            generateWave(freq);
+            //
+            queue.call_every(5ms, collectWave);
+            //queue.call(generateWave);
+            generateWave();
         } else {
             cnt_sample = 0;
             index_sample = 0;
@@ -139,11 +149,7 @@ int main()
     return 0;
 }
 
-// thread for generate wave
-void genWave()
-{
-    generateWave(freq);
-}
+
 
 // define 4 diff freq for this machine
 int freqState(int state, int buttonDown, int buttonUp)
@@ -156,114 +162,121 @@ int freqState(int state, int buttonDown, int buttonUp)
     }
     return state;
 }
-
+void collectWave()
+{
+    if (index_sample < NSAMPLE) {
+        sample[index_sample] = Ain;
+        index_sample++;
+    }
+    
+}
 
 // As studentID = 107012045, S = 0
 // generate wave via DAC and collect wave via ADC
-void generateWave(int freq)
+void generateWave()
 {
+    
     double i;
-    int j;
-
     // 1Hz
     if (freq == 8){
         for(i = 0; i < 1; i = i+0.1) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
         ThisThread::sleep_for(220ms);
         for(i = 1; i > 0; i = i-0.1) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
             }
+            */
             ThisThread::sleep_for(1ms);
         }
         
     } else if (freq == 5) {
         for(i = 1; i > 0; i = i-0.005) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms); // 5Hz => 1/5/100=0.002
         }
     } else if (freq == 4) {
         for(i = 0; i < 1; i = i+0.05) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
         ThisThread::sleep_for(200ms);
         for(i = 1; i > 0; i = i-0.05) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
     } else if (freq == 2) {
         for(i = 0; i < 1; i = i+0.025) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
         ThisThread::sleep_for(160ms);
         for(i = 1; i > 0; i = i-0.025) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
     } else {
         for(i = 0; i < 1; i = i+0.0125) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
         ThisThread::sleep_for(80ms);
         for(i = 1; i > 0; i = i-0.0125) {
             Aout = i;
-            cnt_sample++;
+            /*cnt_sample++;
             if (cnt_sample == 5 && index_sample < NSAMPLE) {
                 cnt_sample = 0;
                 sample[index_sample] = Ain;
                 index_sample++;
-            }
+            }*/
             ThisThread::sleep_for(1ms);
         }
         
